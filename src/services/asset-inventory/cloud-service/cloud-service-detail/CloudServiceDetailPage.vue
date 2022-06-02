@@ -179,16 +179,14 @@ import { TranslateResult } from 'vue-i18n';
 
 import { store } from '@/store';
 
-import {
-    dynamicFieldsToExcelDataFields,
-    makeQuerySearchPropsWithSearchSchema,
-} from '@/lib/component-util/dynamic-layout';
+import { dynamicFieldsToExcelDataFields } from '@/lib/component-util/dynamic-layout';
 import { FILE_NAME_PREFIX } from '@/lib/excel-export';
 import { showSuccessMessage } from '@/lib/helper/notice-alert-helper';
 import { referenceFieldFormatter } from '@/lib/reference/referenceFieldFormatter';
 import { Reference } from '@/lib/reference/type';
 import { objectToQueryString, queryStringToObject, replaceUrlQuery } from '@/lib/router-query-string';
 
+import { useQuerySearchPropsWithSearchSchema } from '@/common/composables/dynamic-layout';
 import ErrorHandler from '@/common/composables/error/errorHandler';
 import { useManagePermissionState } from '@/common/composables/page-manage-permission';
 import CustomFieldModal from '@/common/modules/custom-table/custom-field-modal/CustomFieldModal.vue';
@@ -249,7 +247,7 @@ export default {
     setup(props, { root }) {
         const vm = getCurrentInstance() as ComponentRenderProxy;
         const queryHelper = new QueryHelper();
-
+        const makeQuerySearchPropsWithSearchSchema = useQuerySearchPropsWithSearchSchema();
         /* Sidebar */
         const sidebarState = reactive({
             selectedItem: computed(() => assetInventoryStore.state.cloudServiceDetail.selectedItem),
@@ -352,9 +350,9 @@ export default {
 
                 // declare keyItemSets and valueHandlerMap with search schema
                 if (schema?.options?.search) {
-                    const searchProps = makeQuerySearchPropsWithSearchSchema(schema.options.search, 'inventory.CloudService', schemaQueryHelper.apiQuery.filter);
-                    typeOptionState.keyItemSets = searchProps.keyItemSets;
-                    typeOptionState.valueHandlerMap = searchProps.valueHandlerMap;
+                    const { keyItemSets, valueHandlerMap } = makeQuerySearchPropsWithSearchSchema(schema.options.search, 'inventory.CloudService', schemaQueryHelper.apiQuery.filter);
+                    typeOptionState.keyItemSets = keyItemSets;
+                    typeOptionState.valueHandlerMap = valueHandlerMap;
                 }
 
                 // initiate queryTags with keyItemSets
