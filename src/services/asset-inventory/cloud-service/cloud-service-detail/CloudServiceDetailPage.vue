@@ -172,7 +172,6 @@ import {
     DynamicLayoutFieldHandler,
 } from '@spaceone/design-system/dist/src/data-display/dynamic/dynamic-layout/type';
 import { DynamicLayout } from '@spaceone/design-system/dist/src/data-display/dynamic/dynamic-layout/type/layout-schema';
-import { KeyItemSet, ValueHandlerMap } from '@spaceone/design-system/dist/src/inputs/search/query-search/type';
 import dayjs from 'dayjs';
 import { get } from 'lodash';
 import { TranslateResult } from 'vue-i18n';
@@ -247,7 +246,6 @@ export default {
     setup(props, { root }) {
         const vm = getCurrentInstance() as ComponentRenderProxy;
         const queryHelper = new QueryHelper();
-        const makeQuerySearchPropsWithSearchSchema = useQuerySearchPropsWithSearchSchema();
         /* Sidebar */
         const sidebarState = reactive({
             selectedItem: computed(() => assetInventoryStore.state.cloudServiceDetail.selectedItem),
@@ -270,8 +268,6 @@ export default {
             timezone: computed(() => store.state.user.timezone || 'UTC'),
             selectIndex: [] as number[],
             selectable: true,
-            keyItemSets: [] as KeyItemSet[],
-            valueHandlerMap: {} as ValueHandlerMap,
             colCopy: false,
             settingsVisible: true,
         });
@@ -301,6 +297,17 @@ export default {
             visibleCustomFieldModal: false,
             searchFilters: computed<QueryStoreFilter[]>(() => queryHelper.setFiltersAsQueryTag(fetchOptionState.queryTags).filters),
         });
+        const schemaQueryHelper = new QueryHelper();
+        const [keyItemSets, valueHandlerMap] = useQuerySearchPropsWithSearchSchema(
+            computed(() => tableState.schema?.options?.search ?? []),
+            'inventory.CloudService',
+            schemaQueryHelper.setFilters([
+                { k: 'provider', o: '=', v: props.provider },
+                { k: 'cloud_service_group', o: '=', v: props.group },
+                { k: 'cloud_service_type', o: '=', v: props.name },
+            ]).apiQuery.filter,
+        );
+
 
         const checkTableModalState = reactive({
             visible: false,
@@ -329,7 +336,6 @@ export default {
             typeOptionState.selectIndex = selectIndex;
         };
 
-        const schemaQueryHelper = new QueryHelper();
         const getTableSchema = async (): Promise<null|DynamicLayout> => {
             try {
                 const schema = await SpaceConnector.client.addOns.pageSchema.get({
@@ -342,21 +348,8 @@ export default {
                     },
                 });
 
-                schemaQueryHelper.setFilters([
-                    { k: 'provider', o: '=', v: props.provider },
-                    { k: 'cloud_service_group', o: '=', v: props.group },
-                    { k: 'cloud_service_type', o: '=', v: props.name },
-                ]);
-
-                // declare keyItemSets and valueHandlerMap with search schema
-                if (schema?.options?.search) {
-                    const { keyItemSets, valueHandlerMap } = makeQuerySearchPropsWithSearchSchema(schema.options.search, 'inventory.CloudService', schemaQueryHelper.apiQuery.filter);
-                    typeOptionState.keyItemSets = keyItemSets;
-                    typeOptionState.valueHandlerMap = valueHandlerMap;
-                }
-
                 // initiate queryTags with keyItemSets
-                fetchOptionState.queryTags = queryHelper.setKeyItemSets(typeOptionState.keyItemSets).queryTags;
+                fetchOptionState.queryTags = queryHelper.setKeyItemSets(keyItemSets.value).queryTags;
 
                 // return schema
                 return schema;
@@ -550,7 +543,7 @@ export default {
             /* Main Table */
             tableState,
             fetchOptionState,
-            typeOptionState,
+            typeOptionState: Object.assign(typeOptionState, { keyItemSets, valueHandlerMap }),
             checkTableModalState,
             handleTableHeightChange,
             handleSelect,
