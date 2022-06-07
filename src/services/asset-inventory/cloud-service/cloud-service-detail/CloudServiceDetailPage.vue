@@ -348,9 +348,6 @@ export default {
                     },
                 });
 
-                // initiate queryTags with keyItemSets
-                fetchOptionState.queryTags = queryHelper.setKeyItemSets(keyItemSets.value).queryTags;
-
                 // return schema
                 return schema;
             } catch (e) {
@@ -536,6 +533,10 @@ export default {
             tableState.schema = await getTableSchema();
             await fetchTableData();
         }, { immediate: true });
+        watch(() => keyItemSets.value, (after) => {
+            // initiate queryTags with keyItemSets
+            fetchOptionState.queryTags = queryHelper.setKeyItemSets(after).queryTags;
+        });
 
         return {
             /* Sidebar */
