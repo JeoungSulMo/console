@@ -1,9 +1,9 @@
 import {
-    computed, ComputedRef, reactive, ref, watch,
+    computed, ComputedRef, reactive,
 } from '@vue/composition-api';
 
 import { makeDistinctValueHandler, makeEnumValueHandler, makeReferenceValueHandler } from '@spaceone/console-core-lib/component-util/query-search';
-import { ValueHandlerMap } from '@spaceone/console-core-lib/component-util/query-search/type';
+import { KeyItem, ValueHandlerMap } from '@spaceone/console-core-lib/component-util/query-search/type';
 import { Filter } from '@spaceone/console-core-lib/space-connector/type';
 import { KeyItemSet } from '@spaceone/design-system/dist/src/inputs/search/query-search/type';
 
@@ -12,13 +12,63 @@ import { store } from '@/store';
 import { ConsoleSearchSchema } from '@/lib/component-util/dynamic-layout/type';
 
 
+const getKeyItemSets = (schemaList: ConsoleSearchSchema[], storeState): KeyItemSet[] => {
+    const keyItemSets: KeyItemSet[] = [];
+    schemaList.forEach((schema) => {
+        const keyItems: KeyItem[] = [];
+        schema.items.forEach((item) => {
+            const keyItem: any = {
+                label: item.name,
+                name: item.key,
+                dataType: item.data_type,
+                reference: item.reference,
+            };
+            if (item.enums || item.reference) {
+                keyItem.operators = ['=', '!='];
+            }
+            if (item.reference) {
+                const splitReference = item.reference.split('.');
+                const reference = splitReference[splitReference.length - 1];
+                keyItem.valueSet = storeState[reference];
+            }
+            keyItems.push(keyItem);
+        });
+        const keyItemSet: KeyItemSet = {
+            title: schema.title,
+            items: keyItems,
+        };
+        keyItemSets.push(keyItemSet);
+    });
+    return keyItemSets;
+};
+const getValueHandlerMap = (schemaList: ConsoleSearchSchema[], resourceType: string, filters?: Filter[]): ValueHandlerMap => {
+    const valueHandlerMap: ValueHandlerMap = {};
+    schemaList.forEach((schema) => {
+        schema.items.forEach((item) => {
+            if (item.enums) {
+                valueHandlerMap[item.key] = makeEnumValueHandler(item.enums);
+            } else if (item.reference) {
+                valueHandlerMap[item.key] = makeReferenceValueHandler(item.reference, item.data_type);
+            } else {
+                valueHandlerMap[item.key] = makeDistinctValueHandler(resourceType, item.key, item.data_type, filters);
+            }
+        });
+    });
+    return valueHandlerMap;
+};
+
+/**
+ * @name useQuerySearchPropsWithSearchSchema
+ * @description xxx
+ */
 export function useQuerySearchPropsWithSearchSchema(
     searchSchema: ComputedRef<ConsoleSearchSchema[]>,
     resourceType: string,
     filters?: Filter[],
-): [keyItemSets: ComputedRef<KeyItemSet[]>, valueHandlerMap: ComputedRef<ValueHandlerMap>] {
-    const keyItemSets = ref<KeyItemSet[]>([]);
-    const valueHandlerMap = ref<ValueHandlerMap>({});
+): { keyItemSets: ComputedRef<KeyItemSet[]>, valueHandlerMap: ComputedRef<ValueHandlerMap> } {
+    (async () => {
+        await store.dispatch('reference/loadAll');
+    })();
     const storeState = reactive({
         Project: computed(() => store.state.reference.project.items),
         ProjectGroup: computed(() => store.state.reference.projectGroup.items),
@@ -33,43 +83,8 @@ export function useQuerySearchPropsWithSearchSchema(
         Protocol: computed(() => store.state.reference.protocol.items),
         Webhook: computed(() => store.state.reference.webhook.items),
     });
-    // LOAD REFERENCE STORE
-    store.dispatch('reference/loadAll')
-        .then(() => {
-            watch(() => searchSchema.value, (after) => {
-                // make querySearchProps
-                keyItemSets.value = after.map(s => ({
-                    title: s.title,
-                    items: s.items.map((d) => {
-                        let operators;
-                        const keyItemSet: any = {
-                            label: d.name, name: d.key, dataType: d.data_type, reference: d.reference,
-                        };
-                        if (d.enums) {
-                            valueHandlerMap.value[d.key] = makeEnumValueHandler(d.enums);
-                            operators = ['=', '!='];
-                        } else if (d.reference) {
-                            const splitReference = d.reference.split('.');
-                            const reference = splitReference[splitReference.length - 1];
-                            keyItemSet.valueSet = storeState[reference];
-                            valueHandlerMap.value[d.key] = makeReferenceValueHandler(
-                                d.reference,
-                                d.data_type,
-                            );
-                            operators = ['=', '!='];
-                        } else {
-                            valueHandlerMap.value[d.key] = makeDistinctValueHandler(
-                                resourceType,
-                                d.key,
-                                d.data_type,
-                                filters,
-                            );
-                        }
-                        keyItemSet.operators = operators;
-                        return keyItemSet;
-                    }),
-                }));
-            }, { immediate: true });
-        });
-    return [keyItemSets, valueHandlerMap];
+    return {
+        keyItemSets: computed(() => getKeyItemSets(searchSchema.value, storeState)),
+        valueHandlerMap: computed(() => getValueHandlerMap(searchSchema.value, resourceType, filters)),
+    };
 }

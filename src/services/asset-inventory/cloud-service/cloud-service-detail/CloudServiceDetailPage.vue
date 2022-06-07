@@ -298,7 +298,7 @@ export default {
             searchFilters: computed<QueryStoreFilter[]>(() => queryHelper.setFiltersAsQueryTag(fetchOptionState.queryTags).filters),
         });
         const schemaQueryHelper = new QueryHelper();
-        const [keyItemSets, valueHandlerMap] = useQuerySearchPropsWithSearchSchema(
+        const { keyItemSets, valueHandlerMap } = useQuerySearchPropsWithSearchSchema(
             computed(() => tableState.schema?.options?.search ?? []),
             'inventory.CloudService',
             schemaQueryHelper.setFilters([
