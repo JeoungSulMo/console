@@ -13,7 +13,7 @@
                 </router-link>
             </div>
         </template>
-        <div class="contents-container">
+        <div ref="chartContainer" class="contents-container">
             <p-data-loader :loading="loading" class="chart">
                 <template #loader>
                     <p-skeleton width="100%" height="100%" />
@@ -101,6 +101,7 @@ import { arrayToQueryString } from '@/lib/router-query-string';
 
 import WidgetLayout from '@/common/components/layouts/WidgetLayout.vue';
 import ErrorHandler from '@/common/composables/error/errorHandler';
+import { useLazyRenderingChart } from '@/common/composables/lazy-rendering';
 
 import { gray, peacock, secondary } from '@/styles/colors';
 
@@ -151,6 +152,7 @@ export default {
             chartData: [] as ChartData[],
             chartRef: null as HTMLElement | null,
             chart: null as null | any,
+            chartContainer: null as HTMLElement | null,
             colors: {
                 server: SERVER_COLOR,
                 database: DATABASE_COLOR,
@@ -322,8 +324,8 @@ export default {
         const init = async () => {
             await getData();
         };
-        init();
 
+        useLazyRenderingChart(computed(() => state.chartContainer), init);
         watch([() => state.chartRef, () => state.chartData], ([chartContext, data]) => {
             if (chartContext && data) {
                 drawChart(chartContext);
