@@ -22,7 +22,9 @@
     "paths": {
       "@/*": [
         "src/*"
-      ]
+      ],
+      "pdfmake": ["node_modules/@amcharts/amcharts4/node_modules/pdfmake"],
+      "pdfmake/*": ["node_modules/@amcharts/amcharts4/node_modules/pdfmake/*"]
     },
     "lib": [
       "esnext",

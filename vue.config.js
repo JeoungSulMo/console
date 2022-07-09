@@ -64,6 +64,7 @@ module.exports = {
             symlinks: false,
             alias: {
                 '@vue/composition-api': path.resolve(__dirname, './node_modules/@vue/composition-api/'),
+                pdfmake: path.resolve(__dirname, './node_modules/@amcharts/amcharts4/node_modules/pdfmake/'),
             },
         },
         plugins: [
