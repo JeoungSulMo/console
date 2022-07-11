@@ -1,70 +1,72 @@
 <template>
-    <widget-layout>
-        <template #title>
-            <div class="title">
-                <span :style="{ 'color': providers.aws ? providers.aws.color : '' }">AWS </span>
-                <span>{{ $t('COMMON.WIDGETS.TRUSTED_ADVISOR.TITLE') }}</span>
-            </div>
-        </template>
-        <div class="content-wrapper">
-            <trusted-advisor-overall :extra-params="extraParams" />
-            <div class="project-summary-wrapper">
+    <view-port-loading>
+        <widget-layout>
+            <template #title>
                 <div class="title">
-                    <span class="text">{{ $t('COMMON.WIDGETS.TRUSTED_ADVISOR.SUB_TITLE_PROJECT_SUMMARY') }}</span>
-                    <p-text-pagination
-                        :this-page.sync="thisPage"
-                        :all-page="allPage"
-                        @pageChange="changePageNumber"
-                    />
+                    <span :style="{ 'color': providers.aws ? providers.aws.color : '' }">AWS </span>
+                    <span>{{ $t('COMMON.WIDGETS.TRUSTED_ADVISOR.TITLE') }}</span>
                 </div>
-                <div class="table-wrapper">
-                    <div v-for="rowNum of range(-1, 5)" :key="rowNum"
-                         class="table-row" :class="{ 'project-name-row': rowNum === -1 }"
-                    >
-                        <div class="left-part">
-                            <div v-if="rowNum > -1" class="label-wrapper">
-                                <p-i :name="tableData[rowNum].icon"
-                                     width="0.875rem" height="0.875rem"
-                                     color="inherit transparent"
-                                />
-                                <span class="text hidden lg:inline-block">{{ tableData[rowNum].label }}</span>
+            </template>
+            <div class="content-wrapper">
+                <trusted-advisor-overall :extra-params="extraParams" />
+                <div class="project-summary-wrapper">
+                    <div class="title">
+                        <span class="text">{{ $t('COMMON.WIDGETS.TRUSTED_ADVISOR.SUB_TITLE_PROJECT_SUMMARY') }}</span>
+                        <p-text-pagination
+                            :this-page.sync="thisPage"
+                            :all-page="allPage"
+                            @pageChange="changePageNumber"
+                        />
+                    </div>
+                    <div class="table-wrapper">
+                        <div v-for="rowNum of range(-1, 5)" :key="rowNum"
+                             class="table-row" :class="{ 'project-name-row': rowNum === -1 }"
+                        >
+                            <div class="left-part">
+                                <div v-if="rowNum > -1" class="label-wrapper">
+                                    <p-i :name="tableData[rowNum].icon"
+                                         width="0.875rem" height="0.875rem"
+                                         color="inherit transparent"
+                                    />
+                                    <span class="text hidden lg:inline-block">{{ tableData[rowNum].label }}</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="right-part grid grid-cols-12 gap-1">
-                            <div v-for="colNum of range(1, 7)" :key="colNum"
-                                 class="col-wrapper col-span-2"
-                            >
-                                <template v-if="rowNum === -1">
-                                    <span v-if="projectSummaryData[colNum * thisPage - 1]"
-                                          v-tooltip.top="projectSummaryData[colNum * thisPage - 1].tooltipText"
-                                          class="project-name"
-                                    >
-                                        <p-i v-if="projectSummaryData[colNum * thisPage - 1].isFavorite" name="ic_bookmark"
-                                             class="favorite-icon"
-                                             width="0.625rem" height="0.625rem"
-                                        />
-                                        <span>{{ projectSummaryData[colNum * thisPage - 1].projectName }}</span>
-                                    </span>
-                                </template>
-                                <template v-else>
-                                    <router-link v-if="getProjectBoxCount(rowNum, colNum * thisPage - 1) > 0"
-                                                 :to="projectSummaryLinkFormatter(rowNum, colNum * thisPage - 1)"
-                                    >
-                                        <div class="box" :class="getProjectBoxStatus(rowNum, colNum * thisPage - 1)">
-                                            <span class="box-text">{{ getProjectBoxCount(rowNum, colNum * thisPage - 1) }}</span>
+                            <div class="right-part grid grid-cols-12 gap-1">
+                                <div v-for="colNum of range(1, 7)" :key="colNum"
+                                     class="col-wrapper col-span-2"
+                                >
+                                    <template v-if="rowNum === -1">
+                                        <span v-if="projectSummaryData[colNum * thisPage - 1]"
+                                              v-tooltip.top="projectSummaryData[colNum * thisPage - 1].tooltipText"
+                                              class="project-name"
+                                        >
+                                            <p-i v-if="projectSummaryData[colNum * thisPage - 1].isFavorite" name="ic_bookmark"
+                                                 class="favorite-icon"
+                                                 width="0.625rem" height="0.625rem"
+                                            />
+                                            <span>{{ projectSummaryData[colNum * thisPage - 1].projectName }}</span>
+                                        </span>
+                                    </template>
+                                    <template v-else>
+                                        <router-link v-if="getProjectBoxCount(rowNum, colNum * thisPage - 1) > 0"
+                                                     :to="projectSummaryLinkFormatter(rowNum, colNum * thisPage - 1)"
+                                        >
+                                            <div class="box" :class="getProjectBoxStatus(rowNum, colNum * thisPage - 1)">
+                                                <span class="box-text">{{ getProjectBoxCount(rowNum, colNum * thisPage - 1) }}</span>
+                                            </div>
+                                        </router-link>
+                                        <div v-else class="box empty">
+                                            <span class="box-text">0</span>
                                         </div>
-                                    </router-link>
-                                    <div v-else class="box empty">
-                                        <span class="box-text">0</span>
-                                    </div>
-                                </template>
+                                    </template>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </widget-layout>
+        </widget-layout>
+    </view-port-loading>
 </template>
 
 <script lang="ts">
@@ -88,6 +90,7 @@ import { FAVORITE_TYPE, FavoriteItem } from '@/store/modules/favorite/type';
 import { ProjectReferenceMap } from '@/store/modules/reference/project/type';
 
 import WidgetLayout from '@/common/components/layouts/WidgetLayout.vue';
+import ViewPortLoading from '@/common/components/view-port-loading/ViewPortLoading.vue';
 import ErrorHandler from '@/common/composables/error/errorHandler';
 
 import { ASSET_INVENTORY_ROUTE } from '@/services/asset-inventory/route-config';
@@ -125,6 +128,7 @@ export default {
         PTextPagination,
         WidgetLayout,
         PI,
+        ViewPortLoading,
     },
     props: {
         extraParams: {
@@ -245,6 +249,7 @@ export default {
         };
 
         const asyncInit = async () => {
+            console.log('trust advisor init');
             await Promise.allSettled([
                 store.dispatch('favorite/load', FAVORITE_TYPE.PROJECT),
                 // LOAD REFERENCE STORE

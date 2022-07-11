@@ -1,5 +1,7 @@
 <template>
-    <div ref="container">
+    <div ref="container"
+         :class="{ 'height': isLoading ? height : 'auto' }"
+    >
         <slot v-if="isLoading" />
     </div>
 </template>
@@ -13,6 +15,12 @@ import {
 
 export default {
     name: 'ViewPortLoading',
+    props: {
+        height: {
+            type: String,
+            default: '0rem',
+        },
+    },
     setup() {
         const vm = getCurrentInstance()?.proxy as ComponentRenderProxy;
 

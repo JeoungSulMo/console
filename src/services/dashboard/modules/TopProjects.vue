@@ -1,79 +1,81 @@
 <template>
-    <widget-layout class="top-projects">
-        <template #title>
-            <div class="top grid grid-cols-12">
-                <span class="title col-span-8 md:col-span-10">{{ $t('COMMON.WIDGETS.TOP_PROJECT_TITLE') }}</span>
-                <router-link :to="{ name: PROJECT_ROUTE._NAME }" class="create-project-button">
-                    <p-i name="ic_plus" width="1rem" height="1rem"
-                         color="inherit"
-                         class="add-icon"
-                    />
-                    <span class="hidden sm:block">{{ $t('COMMON.WIDGETS.TOP_PROJECT_CREATE_PROJECT') }}</span>
-                    <span class="block sm:hidden">{{ $t('COMMON.WIDGETS.TOP_PROJECT_PROJECT') }}</span>
-                </router-link>
-            </div>
-        </template>
-        <div ref="chartContainer" class="contents-container">
-            <p-data-loader :loading="loading" class="chart">
-                <template #loader>
-                    <p-skeleton width="100%" height="100%" />
-                </template>
-                <div ref="chartRef" class="chart" />
-            </p-data-loader>
-            <div v-if="!loading && items.length === 0"
-                 class="no-data-wrapper"
-            >
-                <p class="title">
-                    {{ $t('COMMON.WIDGETS.TOP_PROJECTS.NO_PROJECT') }}
-                </p>
-                <p class="text">
-                    {{ $t('COMMON.WIDGETS.TOP_PROJECTS.NO_PROJECT_HELP_TEXT') }}
-                </p>
-                <router-link :to="{ name: PROJECT_ROUTE._NAME }">
-                    <p-button icon="ic_plus" style-type="primary1">
-                        <span>{{ $t('COMMON.WIDGETS.TOP_PROJECTS.CREATE_PROJECT') }}</span>
-                    </p-button>
-                </router-link>
-            </div>
-            <template v-else>
-                <p-data-table
-                    :loading="loading"
-                    :fields="fields"
-                    :items="items"
-                    :bordered="false"
-                >
-                    <template #col-rank-format="{ index }">
-                        <span class="col-rank">{{ `# ${index + 1}` }}</span>
-                    </template>
-                    <template #col-project_group-format="{ value }">
-                        <router-link class="link-text" :to="value.to">
-                            <span>{{ value.label }}</span>
-                        </router-link>
-                    </template>
-                    <template #col-project-format="{ value }">
-                        <router-link class="link-text" :to="value.to">
-                            <span>{{ value.label }}</span>
-                        </router-link>
-                    </template>
-                    <template #col-server-format="{ value }">
-                        <router-link class="link-text" :to="value.to">
-                            <span>{{ value.count }}</span>
-                        </router-link>
-                    </template>
-                    <template #col-database-format="{ value }">
-                        <router-link class="link-text" :to="value.to">
-                            <span>{{ value.count }}</span>
-                        </router-link>
-                    </template>
-                    <template #col-storage-format="{ value }">
-                        <router-link class="link-text" :to="value.to">
-                            <span>{{ value.label }}</span>
-                        </router-link>
-                    </template>
-                </p-data-table>
+    <view-port-loading>
+        <widget-layout class="top-projects">
+            <template #title>
+                <div class="top grid grid-cols-12">
+                    <span class="title col-span-8 md:col-span-10">{{ $t('COMMON.WIDGETS.TOP_PROJECT_TITLE') }}</span>
+                    <router-link :to="{ name: PROJECT_ROUTE._NAME }" class="create-project-button">
+                        <p-i name="ic_plus" width="1rem" height="1rem"
+                             color="inherit"
+                             class="add-icon"
+                        />
+                        <span class="hidden sm:block">{{ $t('COMMON.WIDGETS.TOP_PROJECT_CREATE_PROJECT') }}</span>
+                        <span class="block sm:hidden">{{ $t('COMMON.WIDGETS.TOP_PROJECT_PROJECT') }}</span>
+                    </router-link>
+                </div>
             </template>
-        </div>
-    </widget-layout>
+            <div class="contents-container">
+                <p-data-loader :loading="loading" class="chart">
+                    <template #loader>
+                        <p-skeleton width="100%" height="100%" />
+                    </template>
+                    <div ref="chartRef" class="chart" />
+                </p-data-loader>
+                <div v-if="!loading && items.length === 0"
+                     class="no-data-wrapper"
+                >
+                    <p class="title">
+                        {{ $t('COMMON.WIDGETS.TOP_PROJECTS.NO_PROJECT') }}
+                    </p>
+                    <p class="text">
+                        {{ $t('COMMON.WIDGETS.TOP_PROJECTS.NO_PROJECT_HELP_TEXT') }}
+                    </p>
+                    <router-link :to="{ name: PROJECT_ROUTE._NAME }">
+                        <p-button icon="ic_plus" style-type="primary1">
+                            <span>{{ $t('COMMON.WIDGETS.TOP_PROJECTS.CREATE_PROJECT') }}</span>
+                        </p-button>
+                    </router-link>
+                </div>
+                <template v-else>
+                    <p-data-table
+                        :loading="loading"
+                        :fields="fields"
+                        :items="items"
+                        :bordered="false"
+                    >
+                        <template #col-rank-format="{ index }">
+                            <span class="col-rank">{{ `# ${index + 1}` }}</span>
+                        </template>
+                        <template #col-project_group-format="{ value }">
+                            <router-link class="link-text" :to="value.to">
+                                <span>{{ value.label }}</span>
+                            </router-link>
+                        </template>
+                        <template #col-project-format="{ value }">
+                            <router-link class="link-text" :to="value.to">
+                                <span>{{ value.label }}</span>
+                            </router-link>
+                        </template>
+                        <template #col-server-format="{ value }">
+                            <router-link class="link-text" :to="value.to">
+                                <span>{{ value.count }}</span>
+                            </router-link>
+                        </template>
+                        <template #col-database-format="{ value }">
+                            <router-link class="link-text" :to="value.to">
+                                <span>{{ value.count }}</span>
+                            </router-link>
+                        </template>
+                        <template #col-storage-format="{ value }">
+                            <router-link class="link-text" :to="value.to">
+                                <span>{{ value.label }}</span>
+                            </router-link>
+                        </template>
+                    </p-data-table>
+                </template>
+            </div>
+        </widget-layout>
+    </view-port-loading>
 </template>
 
 <script lang="ts">
@@ -100,8 +102,8 @@ import { referenceRouter } from '@/lib/reference/referenceRouter';
 import { arrayToQueryString } from '@/lib/router-query-string';
 
 import WidgetLayout from '@/common/components/layouts/WidgetLayout.vue';
+import ViewPortLoading from '@/common/components/view-port-loading/ViewPortLoading.vue';
 import ErrorHandler from '@/common/composables/error/errorHandler';
-import { useLazyRenderingChart } from '@/common/composables/lazy-rendering';
 
 import { gray, peacock, secondary } from '@/styles/colors';
 
@@ -132,6 +134,7 @@ const DATABASE_COLOR = peacock[200];
 export default {
     name: 'TopProjects',
     components: {
+        ViewPortLoading,
         WidgetLayout,
         PDataTable,
         PButton,
@@ -152,7 +155,6 @@ export default {
             chartData: [] as ChartData[],
             chartRef: null as HTMLElement | null,
             chart: null as null | any,
-            chartContainer: null as HTMLElement | null,
             colors: {
                 server: SERVER_COLOR,
                 database: DATABASE_COLOR,
@@ -324,8 +326,7 @@ export default {
         const init = async () => {
             await getData();
         };
-
-        useLazyRenderingChart(computed(() => state.chartContainer), init);
+        init();
         watch([() => state.chartRef, () => state.chartData], ([chartContext, data]) => {
             if (chartContext && data) {
                 drawChart(chartContext);

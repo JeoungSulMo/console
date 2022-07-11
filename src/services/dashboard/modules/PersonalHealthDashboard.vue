@@ -1,63 +1,65 @@
 <template>
-    <widget-layout>
-        <template #title>
-            <div class="title">
-                <span :style="{ 'color': providers.aws ? providers.aws.color : '' }">AWS </span>
-                <span>{{ $t('COMMON.WIDGETS.PERSONAL_HEALTH_DASHBOARD.TITLE') }}</span>
-            </div>
-        </template>
-        <p-data-table
-            :loading="loading"
-            :fields="fields"
-            :items="data"
-            :bordered="false"
-        >
-            <template #col-event-format="{ index, value }">
-                <div class="col-event">
-                    <span class="event-name">
-                        <router-link :to="value.to" class="link-text">
-                            <span>{{ value.name }}</span>
-                        </router-link>
-                    </span>
-                    <span class="event-time" :class="{ 'show-all': data[index].showAll }">
-                        {{ $t('COMMON.WIDGETS.PERSONAL_HEALTH_DASHBOARD.LAST_UPDATE') }} : {{ value.lastUpdate }}
-                    </span>
+    <view-port-loading height="12.625rem">
+        <widget-layout>
+            <template #title>
+                <div class="title">
+                    <span :style="{ 'color': providers.aws ? providers.aws.color : '' }">AWS </span>
+                    <span>{{ $t('COMMON.WIDGETS.PERSONAL_HEALTH_DASHBOARD.TITLE') }}</span>
                 </div>
             </template>
-            <template #col-region-format="{ value }">
-                <span class="region">{{ value }}</span>
-            </template>
-            <template #col-affected_projects-format="{ index, value }">
-                <div class="affected-projects-wrapper grid grid-cols-12 gap-2">
-                    <div class="count col-span-1" :class="{ 'show-all': data[index].showAll }">
-                        {{ value.length }}
-                    </div>
-                    <div class="col-span-9 project-link-group" :class="{ 'show-all': data[index].showAll }">
-                        <div v-for="(project, pIndex) in value" :key="`project-link-${project.name}-${pIndex}`">
-                            <p-i v-if="project.isFavorite" name="ic_bookmark"
-                                 class="favorite-icon"
-                                 width="0.625rem" height="0.625rem"
-                            />
-                            <router-link :to="project.to" class="project-link">
-                                {{ project.name }}
+            <p-data-table
+                :loading="loading"
+                :fields="fields"
+                :items="data"
+                :bordered="false"
+            >
+                <template #col-event-format="{ index, value }">
+                    <div class="col-event">
+                        <span class="event-name">
+                            <router-link :to="value.to" class="link-text">
+                                <span>{{ value.name }}</span>
                             </router-link>
+                        </span>
+                        <span class="event-time" :class="{ 'show-all': data[index].showAll }">
+                            {{ $t('COMMON.WIDGETS.PERSONAL_HEALTH_DASHBOARD.LAST_UPDATE') }} : {{ value.lastUpdate }}
+                        </span>
+                    </div>
+                </template>
+                <template #col-region-format="{ value }">
+                    <span class="region">{{ value }}</span>
+                </template>
+                <template #col-affected_projects-format="{ index, value }">
+                    <div class="affected-projects-wrapper grid grid-cols-12 gap-2">
+                        <div class="count col-span-1" :class="{ 'show-all': data[index].showAll }">
+                            {{ value.length }}
+                        </div>
+                        <div class="col-span-9 project-link-group" :class="{ 'show-all': data[index].showAll }">
+                            <div v-for="(project, pIndex) in value" :key="`project-link-${project.name}-${pIndex}`">
+                                <p-i v-if="project.isFavorite" name="ic_bookmark"
+                                     class="favorite-icon"
+                                     width="0.625rem" height="0.625rem"
+                                />
+                                <router-link :to="project.to" class="project-link">
+                                    {{ project.name }}
+                                </router-link>
+                            </div>
+                        </div>
+                        <div class="col-span-2">
+                            <div v-show="value.length > 1"
+                                 class="toggle-button"
+                                 @click="handleClickToggle(index)"
+                            >
+                                {{ data[index].showAll ? $t('COMMON.WIDGETS.PERSONAL_HEALTH_DASHBOARD.HIDE') : $t('COMMON.WIDGETS.PERSONAL_HEALTH_DASHBOARD.ALL') }}
+                                <p-i :name="data[index].showAll ? 'ic_arrow_top' : 'ic_arrow_bottom'"
+                                     height="1rem" width="1rem" color="inherit transparent"
+                                />
+                            </div>
                         </div>
                     </div>
-                    <div class="col-span-2">
-                        <div v-show="value.length > 1"
-                             class="toggle-button"
-                             @click="handleClickToggle(index)"
-                        >
-                            {{ data[index].showAll ? $t('COMMON.WIDGETS.PERSONAL_HEALTH_DASHBOARD.HIDE') : $t('COMMON.WIDGETS.PERSONAL_HEALTH_DASHBOARD.ALL') }}
-                            <p-i :name="data[index].showAll ? 'ic_arrow_top' : 'ic_arrow_bottom'"
-                                 height="1rem" width="1rem" color="inherit transparent"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </template>
-        </p-data-table>
-    </widget-layout>
+                </template>
+            </p-data-table>
+        </widget-layout>
+    </view-port-loading>
 </template>
 
 <script lang="ts">
@@ -79,6 +81,7 @@ import { ProjectReferenceMap } from '@/store/modules/reference/project/type';
 import { referenceRouter } from '@/lib/reference/referenceRouter';
 
 import WidgetLayout from '@/common/components/layouts/WidgetLayout.vue';
+import ViewPortLoading from '@/common/components/view-port-loading/ViewPortLoading.vue';
 import ErrorHandler from '@/common/composables/error/errorHandler';
 
 
@@ -87,6 +90,7 @@ const EVENT_PERIOD = 7;
 export default {
     name: 'PersonalHealthDashboard',
     components: {
+        ViewPortLoading,
         PI,
         PDataTable,
         WidgetLayout,

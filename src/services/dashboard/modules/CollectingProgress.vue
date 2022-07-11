@@ -1,55 +1,57 @@
 <template>
-    <widget-layout>
-        <template #title>
-            <div class="top">
-                <p class="title">
-                    {{ $t('COMMON.WIDGETS.COLLECTING_JOBS') }}
-                </p>
-                <router-link
-                    :to="{ name: ASSET_INVENTORY_ROUTE.COLLECTOR.HISTORY._NAME }"
-                    class="more-btn"
+    <view-port-loading>
+        <widget-layout>
+            <template #title>
+                <div class="top">
+                    <p class="title">
+                        {{ $t('COMMON.WIDGETS.COLLECTING_JOBS') }}
+                    </p>
+                    <router-link
+                        :to="{ name: ASSET_INVENTORY_ROUTE.COLLECTOR.HISTORY._NAME }"
+                        class="more-btn"
+                    >
+                        <div class="more">
+                            <span class="text-xs">{{ $t('COMMON.WIDGETS.CLOUD_SERVICE.SEE_MORE') }}</span>
+                            <p-i name="ic_arrow_right" width="1rem" height="1rem"
+                                 color="inherit transparent"
+                            />
+                        </div>
+                    </router-link>
+                </div>
+            </template>
+            <template v-if="loading">
+                <div v-for="skeleton in skeletons" :key="skeleton" class="grid grid-cols-1 gap-1 my-4 w-full">
+                    <p-skeleton width="80%" height="0.625rem" />
+                    <p-skeleton width="100%" height="0.625rem" />
+                </div>
+            </template>
+            <div v-else-if="!loading && items.length > 0">
+                <div v-for="(item, index) in items" :key="index"
+                     class="card grid grid-cols-12 cursor-pointer"
+                     @click="goToCollectorHistory(item)"
                 >
-                    <div class="more">
-                        <span class="text-xs">{{ $t('COMMON.WIDGETS.CLOUD_SERVICE.SEE_MORE') }}</span>
-                        <p-i name="ic_arrow_right" width="1rem" height="1rem"
-                             color="inherit transparent"
+                    <div class="left-part col-span-10">
+                        <span class="collector-provider"
+                              :style="{color: providers[item.collector_info.provider] ? providers[item.collector_info.provider].color : undefined }"
+                        >{{ providers[item.collector_info.provider] ? providers[item.collector_info.provider].label : item.collector_info.provider }}</span>
+                        <span class="collector-title">{{ item.collector_info.name }}</span>
+                        <br><span class="time">{{ timeFormatter(item.created_at) }}</span>
+                    </div>
+                    <div class="right-part col-span-2">
+                        <p-lottie name="lottie_working" auto
+                                  :size="1.5"
                         />
                     </div>
-                </router-link>
-            </div>
-        </template>
-        <template v-if="loading">
-            <div v-for="skeleton in skeletons" :key="skeleton" class="grid grid-cols-1 gap-1 my-4 w-full">
-                <p-skeleton width="80%" height="0.625rem" />
-                <p-skeleton width="100%" height="0.625rem" />
-            </div>
-        </template>
-        <div v-else-if="!loading && items.length > 0">
-            <div v-for="(item, index) in items" :key="index"
-                 class="card grid grid-cols-12 cursor-pointer"
-                 @click="goToCollectorHistory(item)"
-            >
-                <div class="left-part col-span-10">
-                    <span class="collector-provider"
-                          :style="{color: providers[item.collector_info.provider] ? providers[item.collector_info.provider].color : undefined }"
-                    >{{ providers[item.collector_info.provider] ? providers[item.collector_info.provider].label : item.collector_info.provider }}</span>
-                    <span class="collector-title">{{ item.collector_info.name }}</span>
-                    <br><span class="time">{{ timeFormatter(item.created_at) }}</span>
-                </div>
-                <div class="right-part col-span-2">
-                    <p-lottie name="lottie_working" auto
-                              :size="1.5"
-                    />
                 </div>
             </div>
-        </div>
-        <div v-else class="no-data-wrapper">
-            <img src="@/assets/images/illust_star.svg" class="no-data-img">
-            <p class="no-data-text">
-                {{ $t('COMMON.WIDGETS.COLLECTING_JOBS_NO_RUNNING') }}
-            </p>
-        </div>
-    </widget-layout>
+            <div v-else class="no-data-wrapper">
+                <img src="@/assets/images/illust_star.svg" class="no-data-img">
+                <p class="no-data-text">
+                    {{ $t('COMMON.WIDGETS.COLLECTING_JOBS_NO_RUNNING') }}
+                </p>
+            </div>
+        </widget-layout>
+    </view-port-loading>
 </template>
 
 <script lang="ts">
@@ -71,6 +73,7 @@ import { TimeStamp } from '@/models';
 import { store } from '@/store';
 
 import WidgetLayout from '@/common/components/layouts/WidgetLayout.vue';
+import ViewPortLoading from '@/common/components/view-port-loading/ViewPortLoading.vue';
 import ErrorHandler from '@/common/composables/error/errorHandler';
 
 import { COLLECT_MODE, CollectorModel } from '@/services/asset-inventory/collector/type';
@@ -104,6 +107,7 @@ export interface JobModel {
 export default {
     name: 'CollectingProgress',
     components: {
+        ViewPortLoading,
         PLottie,
         WidgetLayout,
         PSkeleton,
