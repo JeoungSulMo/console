@@ -275,7 +275,7 @@ export default {
             });
 
             /* make marker */
-            drawMarker(chart);
+            requestIdleCallback(() => drawMarker(chart));
 
             /* click circle to move marker and get filtered data */
             circle2.events.on('hit', async (event) => {
@@ -336,7 +336,7 @@ export default {
 
         watch([() => state.chartRef, () => state.loading], ([chartCtx, loading]) => {
             if (chartCtx && !loading) {
-                drawChart(chartCtx);
+                requestIdleCallback(() => drawChart(chartCtx));
             }
         }, { immediate: false });
 
