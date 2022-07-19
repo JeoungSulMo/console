@@ -164,6 +164,7 @@ export default {
             try {
                 await alertManagerStore.dispatch('alert/updateAlertData', {
                     updateParams: {
+                        ...state.alertInfo,
                         state: alertState,
                     },
                     alertId: props.id,
@@ -178,6 +179,7 @@ export default {
             try {
                 await alertManagerStore.dispatch('alert/updateAlertData', {
                     updateParams: {
+                        ...state.alertInfo,
                         urgency: alertUrgency,
                     },
                     alertId: props.id,

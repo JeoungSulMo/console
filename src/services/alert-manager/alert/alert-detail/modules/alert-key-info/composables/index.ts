@@ -1,5 +1,5 @@
 import type { ComponentRenderProxy } from '@vue/composition-api';
-import { getCurrentInstance, reactive } from '@vue/composition-api';
+import { computed, getCurrentInstance, reactive } from '@vue/composition-api';
 
 import { cloneDeep } from 'lodash';
 
@@ -31,6 +31,8 @@ interface ParamType {
 export const useAlertInfoItem = (obj: AlertDetailItemState) => {
     const vm = getCurrentInstance()?.proxy as ComponentRenderProxy;
     const state = reactive<AlertDetailItemState>(obj);
+    const alertInfo = computed(() => alertManagerStore.state.alert.alertData);
+
     const cancelEdit = (initialData) => {
         state.isEditMode = false;
         if (typeof initialData === 'object') {
@@ -69,7 +71,10 @@ export const useAlertInfoItem = (obj: AlertDetailItemState) => {
     const updateAlert = async (editMode: EditMode) => {
         try {
             await alertManagerStore.dispatch('alert/updateAlertData', {
-                updateParams: getParams(editMode),
+                updateParams: {
+                    ...alertInfo.value,
+                    ...getParams(editMode),
+                },
                 alertId: state.alertId,
             });
             showSuccessMessage(getMessage(editMode, true), '', vm.$root);
