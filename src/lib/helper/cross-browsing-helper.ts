@@ -14,13 +14,13 @@ export const supportsBrowser = (): boolean => {
 };
 
 export const isMobile = () => {
-    const user = window.navigator.userAgent;
-    let is_mobile = false;
+    const user = window.navigator.userAgent.toLowerCase();
+    let _isMobile = false;
 
-    if (user.indexOf('iPhone') > -1
-        || user.indexOf('Android') > -1
-        || user.indexOf('iPad') > -1
-        || user.indexOf('iPod') > -1
-    ) is_mobile = true;
-    return is_mobile;
+    if (user.includes('iphone')
+        || user.includes('android')
+        || user.includes('ipad')
+        || user.includes('ipod')
+    ) _isMobile = true;
+    return _isMobile;
 };

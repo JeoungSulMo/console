@@ -9,7 +9,9 @@
     >
         <template #body>
             <div class="description">
-                {{ $t('AUTH.RESET_PASSWORD_PAGE.MOBILE_GUIDE_MODAL_DESC') }}
+                {{ $t('AUTH.RESET_PASSWORD_PAGE.MOBILE_GUIDE_MODAL_DESC_1') }}
+                <strong>{{ $t('AUTH.RESET_PASSWORD_PAGE.MOBILE_GUIDE_MODAL_DESC_2') }}</strong>
+                {{ $t('AUTH.RESET_PASSWORD_PAGE.MOBILE_GUIDE_MODAL_DESC_3') }}
             </div>
         </template>
         <template #confirm-button>
