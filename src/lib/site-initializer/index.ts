@@ -16,6 +16,7 @@ import { addAmchartsLicense, applyAmchartsGlobalSettings } from '@/lib/amcharts/
 import config from '@/lib/config';
 import { GTag } from '@/lib/gtag';
 import { Gtm } from '@/lib/gtm';
+import { isMobile } from '@/lib/helper/cross-browsing-helper';
 import { initRequestIdleCallback } from '@/lib/request-idle-callback-polyfill';
 import { initDayjs } from '@/lib/site-initializer/dayjs';
 
@@ -140,6 +141,10 @@ const checkSsoAccessToken = async () => {
     const ssoAccessToken = params.get('sso_access_token');
     // signOut
     if (ssoAccessToken) {
+        if (isMobile()) {
+            store.dispatch('display/showMobileGuideModal');
+            return;
+        }
         if (SpaceConnector.isTokenAlive) {
             try {
                 const authType = store.state.domain.extendedAuthType;
