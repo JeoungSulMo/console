@@ -58,6 +58,7 @@
                 {{ $t('AUTH.RESET_PASSWORD_PAGE.GO_TO_LOGIN_PAGE') }}
             </p-button>
         </div>
+        <mobile-guide-modal v-if="showMobileGuideModal" />
     </p-data-loader>
 </template>
 
@@ -84,6 +85,7 @@ import ErrorHandler from '@/common/composables/error/errorHandler';
 import { useFormValidator } from '@/common/composables/form-validator';
 
 import { getDefaultRouteAfterSignIn, getPasswordValidationInfo } from '@/services/auth/lib/helper';
+import MobileGuideModal from '@/services/auth/reset-password/MobileGuideModal.vue';
 import { AUTH_ROUTE } from '@/services/auth/route-config';
 
 
@@ -92,6 +94,7 @@ const UPDATE_PASSWORD_ACTION = 'UPDATE_PASSWORD';
 export default {
     name: 'ResetPasswordPage',
     components: {
+        MobileGuideModal,
         PFieldGroup,
         PTextInput,
         PButton,
@@ -106,6 +109,7 @@ export default {
             showResetPassword: false,
             isSessionExpired: computed(() => !!store.state.user.isSessionExpired),
             warningMessage: i18n.t('AUTH.RESET_PASSWORD_PAGE.INVALID_LINK'),
+            showMobileGuideModal: false,
         });
 
         const {
@@ -199,8 +203,25 @@ export default {
             await SpaceRouter.router.push({ name: AUTH_ROUTE.SIGN_OUT._NAME });
         };
 
+        /* util */
+        const isMobile = () => {
+            const user = navigator.userAgent;
+            let is_mobile = false;
+
+            if (user.indexOf('iPhone') > -1
+                || user.indexOf('Android') > -1
+                || user.indexOf('iPad') > -1
+                || user.indexOf('iPod') > -1
+            ) is_mobile = true;
+            return is_mobile;
+        };
         /* Init */
         (async () => {
+            if (isMobile()) {
+                state.showMobileGuideModal = true;
+                state.loading = false;
+                return;
+            }
             // When signed-in user needs to update password
             if (!state.isSessionExpired) {
                 if (store.state.user.requiredActions?.includes('UPDATE_PASSWORD')) {
