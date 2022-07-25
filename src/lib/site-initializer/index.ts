@@ -135,16 +135,15 @@ const initErrorHandler = () => {
 };
 
 const checkSsoAccessToken = async () => {
-    if (window.location.pathname === '/reset-password') return;
+    if (window.location.pathname === '/reset-password') {
+        if (isMobile()) store.dispatch('display/showMobileGuideModal');
+        return;
+    }
     const queryString = window.location.search;
     const params = new URLSearchParams(queryString);
     const ssoAccessToken = params.get('sso_access_token');
     // signOut
     if (ssoAccessToken) {
-        if (isMobile()) {
-            store.dispatch('display/showMobileGuideModal');
-            return;
-        }
         if (SpaceConnector.isTokenAlive) {
             try {
                 const authType = store.state.domain.extendedAuthType;
@@ -154,7 +153,8 @@ const checkSsoAccessToken = async () => {
                 ErrorHandler.handleError(e);
             }
         }
-        window.location.pathname = 'reset-password';
+        if (isMobile()) store.dispatch('display/showMobileGuideModal');
+        else window.location.pathname = 'reset-password';
     }
 };
 
