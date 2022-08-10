@@ -7,32 +7,34 @@
                 </template>
             </p-toolbox>
         </div>
-        <ul v-if="noticeItems.length" class="list-wrapper">
-            <!-- // todo: item.[id]-->
-            <list-item v-for="(item, index) in noticeItems"
-                       :key="`notice-${item.post_id}-${index}`"
-                       class="list-item"
-                       :post="item"
-                       :notice-type="item.scope"
-                       :is-new="false"
-                       :is-pinned="item.options.is_pinned"
-                       @click.native="handleClickNotice(item.post_id)"
-            />
-        </ul>
-        <div v-else class="no-data">
-            <img src="@/assets/images/illust_satellite.svg" class="no-data-img">
-            <p class="no-data-text">
-                <!--song-lang-->
-                {{ $t('No notices') }}
-            </p>
-        </div>
-        <div class="pagination-wrapper">
-            <p-pagination class="pagination"
-                          :total-count="noticeItems.length"
-                          :page-size="10"
-                          :current-page="1"
-            />
-        </div>
+        <p-data-loader :data="noticeItems" :loading="loading">
+            <ul v-if="noticeItems.length" class="list-wrapper">
+                <!-- // todo: item.[id]-->
+                <list-item v-for="(item, index) in noticeItems"
+                           :key="`notice-${item.post_id}-${index}`"
+                           class="list-item"
+                           :post="item"
+                           :notice-type="item.scope"
+                           :is-new="false"
+                           :is-pinned="item.options.is_pinned"
+                           @click.native="handleClickNotice(item.post_id)"
+                />
+            </ul>
+            <div v-else class="no-data">
+                <img src="@/assets/images/illust_satellite.svg" class="no-data-img">
+                <p class="no-data-text">
+                    <!--song-lang-->
+                    {{ $t('No notices') }}
+                </p>
+            </div>
+            <div class="pagination-wrapper">
+                <p-pagination class="pagination"
+                              :total-count="noticeItems.length"
+                              :page-size="10"
+                              :current-page="1"
+                />
+            </div>
+        </p-data-loader>
     </div>
 </template>
 
@@ -43,11 +45,11 @@ import { defineComponent, reactive, toRefs } from '@vue/composition-api';
 import { SpaceConnector } from '@spaceone/console-core-lib/space-connector';
 import { ApiQueryHelper } from '@spaceone/console-core-lib/space-connector/helper';
 import {
+    PDataLoader,
     PPagination, PSelectDropdown, PToolbox,
 } from '@spaceone/design-system';
 
 import { SpaceRouter } from '@/router';
-import { i18n } from '@/translations';
 
 import { getNoticeBoardId } from '@/lib/helper/notice-helper';
 
@@ -72,6 +74,7 @@ export default defineComponent<Props>({
         PToolbox,
         PSelectDropdown,
         PPagination,
+        PDataLoader,
         ListItem,
     },
     setup() {
@@ -110,7 +113,8 @@ export default defineComponent<Props>({
                 });
                 state.noticeItems = results;
             } catch (e) {
-                ErrorHandler.handleRequestError(e, i18n.t('COMMON.GNB.NOTIFICATION.ALT_E_LIST_NOTIFICATION'));
+                ErrorHandler.handleError(e);
+                state.noticeItems = [];
             }
         };
 

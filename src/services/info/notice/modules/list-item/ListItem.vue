@@ -49,13 +49,12 @@ import type { NoticePostModel } from '@/services/info/notice/type';
 
 
 interface Props {
-    title: string;
     noticeType: string;
     inputText: string;
     isNew: boolean;
     isPinned: boolean;
     postDirection: 'prev' | 'next' | undefined;
-    post?: NoticePostModel;
+    post: NoticePostModel;
 }
 
 export default defineComponent<Props>({
@@ -106,11 +105,7 @@ export default defineComponent<Props>({
             date: computed(() => dateFormatter(props.post?.created_at)),
         });
 
-        const dateFormatter = (date) => {
-            const offset = (dayjs().tz(state.timezone).utcOffset());
-            const timezoneDate = dayjs(date).utcOffset(offset);
-            return timezoneDate.format('YYYY-MM-DD');
-        };
+        const dateFormatter = date => dayjs.tz(dayjs.utc(date), state.timezone).format('YYYY-MM-DD');
         return {
             ...toRefs(state),
         };
